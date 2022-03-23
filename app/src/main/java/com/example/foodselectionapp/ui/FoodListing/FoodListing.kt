@@ -1,6 +1,8 @@
 package com.example.foodselectionapp.ui.FoodListing
 
+import android.content.Context
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -8,8 +10,13 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -18,16 +25,24 @@ import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.ActivityNavigatorExtras
 import androidx.navigation.NavHostController
+import androidx.navigation.Navigator
 import coil.compose.AsyncImage
+import com.example.foodselectionapp.R
 import com.example.foodselectionapp.model.FoodItem
 import com.example.foodselectionapp.ui.theme.FoodSelectionAppTheme
 import com.example.foodselectionapp.ui.theme.getHeaderTextcolor
-
+var foodItemDetails:FoodItem?=null
 @OptIn(ExperimentalUnitApi::class)
 @Composable
-fun ShowFoodListing(navController: NavHostController?=null) {
+fun ShowFoodListing(context: Context, navController: NavHostController? = null) {
     val listState = rememberLazyListState()
+
+    val foodListingViewmodel = viewModel<FoodListingViewmodel>()
+    val foodList = foodListingViewmodel._foodListing.collectAsState().value
+    foodListingViewmodel.getFoodListing(context, FoodListingRepo())
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colors.background
@@ -51,15 +66,33 @@ fun ShowFoodListing(navController: NavHostController?=null) {
                     }
                 )
             },
+            floatingActionButton = {
+                FloatingActionButton(
+                    onClick = {
+                        navController?.navigate("saveFoodDetails")
+                    },
+                    backgroundColor = MaterialTheme.colors.primary
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_baseline_add_24),
+                        contentDescription = "",
+                        colorFilter = ColorFilter.tint(
+                            Color.White
+                        )
+                    )
+                }
+            }, floatingActionButtonPosition = FabPosition.End
         ) {
             LazyColumn(
                 state = listState,
                 content = {
-                    for (i in 0..50) {
+                    for (i in foodList) {
                         item {
-                            FoodItemCell{
-                                navController?.navigate("foodDetails")
-                        }
+                            FoodItemCell(i) {
+                                //navController?.navigate("foodDetails")
+                                foodItemDetails=i
+                                navController?.navigate("foodDetails",null)
+                            }
                         }
                     }
                 },
@@ -70,10 +103,13 @@ fun ShowFoodListing(navController: NavHostController?=null) {
 }
 
 @Composable
-fun FoodItemCell(foodItem: FoodItem? = null,onItemClick:()->Unit) {
-    Row(Modifier.padding(bottom = 5.dp, start = 10.dp, end = 10.dp).clickable {
-        onItemClick()
-    }) {
+fun FoodItemCell(foodItem: FoodItem? = null, onItemClick: () -> Unit) {
+    Row(
+        Modifier
+            .padding(bottom = 5.dp, start = 10.dp, end = 10.dp)
+            .clickable {
+                onItemClick()
+            }) {
         AsyncImage(
             model = "https://via.placeholder.com/300/09f.png/fff",
             contentDescription = "description of the image",
@@ -104,14 +140,15 @@ fun FoodItemCell(foodItem: FoodItem? = null,onItemClick:()->Unit) {
                         .padding(end = 10.dp)
                 )
                 Text(
-                    foodItem?.foodPrice?.toString() ?: "Rs. 100000000000000",
+                    "Rs ${foodItem?.foodPrice?.toString() ?: "10"}",
                     color = MaterialTheme.colors.primary,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
                     softWrap = true,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
-                        .width(170.dp)
+                        .width(170.dp),
+                    textAlign = TextAlign.End
                 )
 
             }
@@ -125,6 +162,9 @@ fun FoodItemCell(foodItem: FoodItem? = null,onItemClick:()->Unit) {
 @Composable
 fun DefaultPreview() {
     FoodSelectionAppTheme {
-        ShowFoodListing()
+        //ShowFoodListing(LocalContext.current)
+        FoodItemCell{
+
+        }
     }
 }

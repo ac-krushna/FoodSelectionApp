@@ -8,4 +8,5 @@
     <color name="black">#FF000000</color>
     <color name="grey">#ACABAB</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="fab_color">#E13D3D</color>
 </resources>

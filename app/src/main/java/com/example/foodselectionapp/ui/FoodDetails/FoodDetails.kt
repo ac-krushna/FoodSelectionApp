@@ -2,8 +2,6 @@ package com.example.foodselectionapp.ui.FoodDetails
 
 import android.content.Context
 import android.content.res.Configuration
-import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -28,13 +26,19 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.foodselectionapp.R
+import com.example.foodselectionapp.model.FoodItem
+import com.example.foodselectionapp.ui.FoodListing.foodItemDetails
 import com.example.foodselectionapp.ui.theme.FoodSelectionAppTheme
 import com.example.foodselectionapp.ui.theme.getHeaderTextcolor
 import com.example.foodselectionapp.ui.theme.getSubHeaderTextcolor
 
 @OptIn(ExperimentalUnitApi::class)
 @Composable
-fun FoodDetails(context:Context,navController: NavHostController? = null) {
+fun FoodDetails(
+    context: Context,
+    navController: NavHostController? = null,
+    foodItemDetails: FoodItem?
+) {
     val listState = rememberLazyListState()
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -64,7 +68,7 @@ fun FoodDetails(context:Context,navController: NavHostController? = null) {
                                 contentScale = ContentScale.Crop
                             )
                             Text(
-                                text = "Food Name",
+                                text = foodItemDetails?.foodName?:"",
                                 fontSize = TextUnit(25f, TextUnitType.Sp),
                                 fontWeight = FontWeight.SemiBold,
                                 color = getHeaderTextcolor()
@@ -113,6 +117,6 @@ fun FoodDetails(context:Context,navController: NavHostController? = null) {
 @Composable
 fun DefaultPreview() {
     FoodSelectionAppTheme {
-        FoodDetails(LocalContext.current)
+        FoodDetails(LocalContext.current, foodItemDetails = foodItemDetails)
     }
 }

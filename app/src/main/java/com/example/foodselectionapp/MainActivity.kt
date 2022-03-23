@@ -12,6 +12,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.foodselectionapp.ui.FoodDetails.FoodDetails
 import com.example.foodselectionapp.ui.FoodListing.ShowFoodListing
+import com.example.foodselectionapp.ui.FoodListing.foodItemDetails
+import com.example.foodselectionapp.ui.SaveFoodData.SaveFoodFlow
 import com.example.foodselectionapp.ui.theme.FoodSelectionAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -30,8 +32,10 @@ fun StartingAppView() {
     FoodSelectionAppTheme {
         val navController = rememberNavController()
         NavHost(navController = navController, startDestination = "foodListing") {
-            composable("foodListing") { ShowFoodListing(navController)}
-            composable("foodDetails") { FoodDetails(LocalContext.current,navController) }
+            composable("foodListing") { ShowFoodListing(LocalContext.current, navController) }
+            composable("foodDetails") { FoodDetails(LocalContext.current, navController,
+                foodItemDetails) }
+            composable("saveFoodDetails") { SaveFoodFlow(LocalContext.current, navController) }
         }
     }
 }

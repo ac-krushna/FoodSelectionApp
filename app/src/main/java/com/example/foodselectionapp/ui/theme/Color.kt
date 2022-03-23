@@ -17,3 +17,7 @@ public fun getHeaderTextcolor():Color{
 public fun getSubHeaderTextcolor():Color{
     return colorResource(id = R.color.grey)
 }
+@Composable
+public fun getFabColor():Color{
+    return colorResource(id = R.color.fab_color)
+}
