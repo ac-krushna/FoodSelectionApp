@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/Users/lenovo/AndroidStudioProjects/FoodSelectionApp/app/src/main/java/com/example/foodselectionapp/MainActivity.kt" value="0.2264151024877837" />
+        <entry key="..\:/Users/lenovo/AndroidStudioProjects/FoodSelectionApp/app/src/main/java/com/example/foodselectionapp/ui/FoodDetails/FoodDetails.kt" value="0.2264151024877837" />
+        <entry key="..\:/Users/lenovo/AndroidStudioProjects/FoodSelectionApp/app/src/main/java/com/example/foodselectionapp/ui/FoodListing/FoodListing.kt" value="0.2264151024877837" />
+        <entry key="..\:/Users/lenovo/AndroidStudioProjects/FoodSelectionApp/app/src/main/res/drawable/ic_baseline_arrow_back_24.xml" value="0.1" />
+      </map>
+    </option>
+  </component>
+</project>
