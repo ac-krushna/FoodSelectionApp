@@ -11,7 +11,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,15 +37,15 @@ import com.example.foodselectionapp.ui.theme.FoodSelectionAppTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.UUID
+import java.util.*
 
 @OptIn(ExperimentalUnitApi::class)
 @Composable
 fun SaveFoodFlow(context: Context, navController: NavHostController? = null) {
     val listState = rememberLazyListState()
-    val vm= viewModel<SaveFoodViewmodel>()
+    val vm = viewModel<SaveFoodViewmodel>()
 
-    val foodListingViewmodel= viewModel<FoodListingViewmodel>()
+    val foodListingViewmodel = viewModel<FoodListingViewmodel>()
 
 
     var rememberFoodName = remember {
@@ -118,7 +120,7 @@ fun SaveFoodFlow(context: Context, navController: NavHostController? = null) {
                         rememberFoodBrandError.value = true
                     }
                     CoroutineScope(Dispatchers.IO).launch {
-                        val id= UUID.randomUUID().toString()
+                        val id = UUID.randomUUID().toString()
                         val response = vm.saveFood(
                             context = context, foodItem = FoodItem(
                                 id,
@@ -128,9 +130,12 @@ fun SaveFoodFlow(context: Context, navController: NavHostController? = null) {
                             ), SaveFoodRepo()
                         )
 
-                        Log.d("SaveFoodFlow", "SaveFoodFlow: response "+response)
-
-                        Log.d("SaveFoodFlow", "SaveFoodFlow: "+vm.hasFood(context = context,id,SaveFoodRepo()))
+                        Log.d("SaveFoodFlow", "SaveFoodFlow: response " + response)
+                        CoroutineScope(Dispatchers.Main).launch {
+                            if (response > 1L) {
+                                navController?.popBackStack("foodListing", false)
+                            }
+                        }
                     }
                 }) {
                     Text(text = "Save")
@@ -138,108 +143,112 @@ fun SaveFoodFlow(context: Context, navController: NavHostController? = null) {
             }
         },
     ) {
-      Box(Modifier.fillMaxSize()) {
-          LazyColumn(
-              horizontalAlignment = Alignment.CenterHorizontally,
-              state = listState,
-              modifier = Modifier
-                  .fillMaxWidth()
-                  .padding(10.dp)
-                  .padding(bottom = 50.dp),
-              content = {
-                  item {
-                      OutlinedTextField(
-                          modifier=Modifier.fillMaxWidth(),
-                          value = rememberFoodName.value,
-                          onValueChange = {
-                              rememberFoodNameError.value=false
-                              rememberFoodName.value = it
-                          },
-                          label = {
-                              Row {
-                                  Image(
-                                      painter = painterResource(id = R.drawable.ic_baseline_fastfood_24),
-                                      contentDescription = "",
-                                      Modifier
-                                          .width(20.dp)
-                                          .height(20.dp)
-                                          .padding(2.dp),
-                                      colorFilter = ColorFilter.tint(MaterialTheme.colors.onSurface)
-                                  )
-                                  Text("Food Name", Modifier.padding(2.dp))
-                              }
-                          },
-                          shape = RoundedCornerShape(10),
-                          isError = rememberFoodNameError.value
-                          )
-                  }
-                  item { 
-                      Spacer(modifier = Modifier
-                          .fillMaxWidth()
-                          .height(9.dp))
-                  }
-                  item {
-                      OutlinedTextField(
-                          modifier=Modifier.fillMaxWidth(),
-                          value = rememberFoodPrice.value,
-                          onValueChange = {
-                              rememberFoodPriceError.value=false
-                              rememberFoodPrice.value = it
-                          },
-                          label = {
-                              Row {
-                                  Image(
-                                      painter = painterResource(id = R.drawable.ic_baseline_fastfood_24),
-                                      contentDescription = "",
-                                      Modifier
-                                          .width(20.dp)
-                                          .height(20.dp)
-                                          .padding(2.dp),
-                                      colorFilter = ColorFilter.tint(MaterialTheme.colors.onSurface)
-                                  )
-                                  Text("Food Price", Modifier.padding(2.dp))
-                              }
-                          },
-                          shape = RoundedCornerShape(10),
-                          keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                          isError = rememberFoodPriceError.value
-                      )
-                  }
-                  item {
-                      Spacer(modifier = Modifier
-                          .fillMaxWidth()
-                          .height(9.dp))
-                  }
-                  item {
-                      OutlinedTextField(
-                          modifier=Modifier.fillMaxWidth(),
-                          value = rememberFoodBrand.value,
-                          onValueChange = {
-                              rememberFoodBrandError.value=false
-                              rememberFoodBrand.value = it
-                          },
-                          label = {
-                              Row {
-                                  Image(
-                                      painter = painterResource(id = R.drawable.ic_baseline_fastfood_24),
-                                      contentDescription = "",
-                                      Modifier
-                                          .width(20.dp)
-                                          .height(20.dp)
-                                          .padding(2.dp),
-                                      colorFilter = ColorFilter.tint(MaterialTheme.colors.onSurface)
-                                  )
-                                  Text("Brand", Modifier.padding(2.dp))
-                              }
-                          },
-                          //shape = AbsoluteCutCornerShape(10),
-                          shape = RoundedCornerShape(10),
+        Box(Modifier.fillMaxSize()) {
+            LazyColumn(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                state = listState,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
+                    .padding(bottom = 50.dp),
+                content = {
+                    item {
+                        OutlinedTextField(
+                            modifier = Modifier.fillMaxWidth(),
+                            value = rememberFoodName.value,
+                            onValueChange = {
+                                rememberFoodNameError.value = false
+                                rememberFoodName.value = it
+                            },
+                            label = {
+                                Row {
+                                    Image(
+                                        painter = painterResource(id = R.drawable.ic_baseline_fastfood_24),
+                                        contentDescription = "",
+                                        Modifier
+                                            .width(20.dp)
+                                            .height(20.dp)
+                                            .padding(2.dp),
+                                        colorFilter = ColorFilter.tint(MaterialTheme.colors.onSurface)
+                                    )
+                                    Text("Food Name", Modifier.padding(2.dp))
+                                }
+                            },
+                            shape = RoundedCornerShape(10),
+                            isError = rememberFoodNameError.value
+                        )
+                    }
+                    item {
+                        Spacer(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(9.dp)
+                        )
+                    }
+                    item {
+                        OutlinedTextField(
+                            modifier = Modifier.fillMaxWidth(),
+                            value = rememberFoodPrice.value,
+                            onValueChange = {
+                                rememberFoodPriceError.value = false
+                                rememberFoodPrice.value = it
+                            },
+                            label = {
+                                Row {
+                                    Image(
+                                        painter = painterResource(id = R.drawable.ic_baseline_fastfood_24),
+                                        contentDescription = "",
+                                        Modifier
+                                            .width(20.dp)
+                                            .height(20.dp)
+                                            .padding(2.dp),
+                                        colorFilter = ColorFilter.tint(MaterialTheme.colors.onSurface)
+                                    )
+                                    Text("Food Price", Modifier.padding(2.dp))
+                                }
+                            },
+                            shape = RoundedCornerShape(10),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            isError = rememberFoodPriceError.value
+                        )
+                    }
+                    item {
+                        Spacer(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(9.dp)
+                        )
+                    }
+                    item {
+                        OutlinedTextField(
+                            modifier = Modifier.fillMaxWidth(),
+                            value = rememberFoodBrand.value,
+                            onValueChange = {
+                                rememberFoodBrandError.value = false
+                                rememberFoodBrand.value = it
+                            },
+                            label = {
+                                Row {
+                                    Image(
+                                        painter = painterResource(id = R.drawable.ic_baseline_fastfood_24),
+                                        contentDescription = "",
+                                        Modifier
+                                            .width(20.dp)
+                                            .height(20.dp)
+                                            .padding(2.dp),
+                                        colorFilter = ColorFilter.tint(MaterialTheme.colors.onSurface)
+                                    )
+                                    Text("Brand", Modifier.padding(2.dp))
+                                }
+                            },
+                            //shape = AbsoluteCutCornerShape(10),
+                            shape = RoundedCornerShape(10),
                             isError = rememberFoodBrandError.value
-                          )
-                  }
-              })
+                        )
+                    }
+                })
 
-      }
+        }
     }
 }
 
