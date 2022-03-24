@@ -132,7 +132,7 @@ fun ShowFoodListing(context: Context, navController: NavHostController? = null) 
                         Text(text = "No Data Found.!")
                     }
                 }
-
+                StatusTypes.Nothing->{}
             }
         }
     }
