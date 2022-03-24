@@ -11,7 +11,7 @@ data class FoodItem(
     @PrimaryKey
     var foodId: String,
     @ColumnInfo(name = "foodName")
-    var foodName:String?="",
+    public var foodName:String?="",
     @ColumnInfo(name = "foodPrice")
     var foodPrice:String?="0",
     @ColumnInfo(name = "foodBrand")

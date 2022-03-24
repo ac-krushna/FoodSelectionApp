@@ -12,9 +12,9 @@ import kotlinx.coroutines.launch
 class FoodListingViewmodel : ViewModel() {
     val foodListing = MutableStateFlow(ArrayList<FoodItem>())
     val _foodListing = foodListing.asStateFlow()
-    fun getFoodListing(context: Context, foodListingRepo: FoodListingRepo) {
+    fun getFoodListing(context: Context, foodListingRepo: FoodListingRepo, wantAscending: Boolean) {
         CoroutineScope(Dispatchers.IO).launch {
-            foodListingRepo.getFoodListing(context).let {
+            foodListingRepo.getFoodListing(context, wantAscending = wantAscending).let {
                 CoroutineScope(Dispatchers.Main).launch {
                     foodListing.value = it
                     foodListing.emit(it)

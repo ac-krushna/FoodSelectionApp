@@ -9,8 +9,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -37,10 +37,11 @@ import com.example.foodselectionapp.ui.theme.getHeaderTextcolor
 @Composable
 fun ShowFoodListing(context: Context, navController: NavHostController? = null) {
     val listState = rememberLazyListState()
-
+    val expanded = remember { mutableStateOf(false) }
+    val selectedFilter = remember { mutableStateOf("A-Z") }
     val foodListingViewmodel = viewModel<FoodListingViewmodel>()
     val foodList = foodListingViewmodel._foodListing.collectAsState().value
-    foodListingViewmodel.getFoodListing(context, FoodListingRepo())
+    foodListingViewmodel.getFoodListing(context, FoodListingRepo(), selectedFilter.value=="A-Z")
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colors.background
@@ -60,8 +61,14 @@ fun ShowFoodListing(context: Context, navController: NavHostController? = null) 
                         )
                     },
                     actions = {
-
-                    }
+                        Image(painter = painterResource(id = R.drawable.ic_baseline_filter_alt_24),
+                            contentDescription = "",
+                            colorFilter = ColorFilter.tint(MaterialTheme.colors.onSurface),
+                            modifier = Modifier.clickable {
+                                expanded.value = !expanded.value
+                            })
+                        FilterMenu(expanded, selectedFilter)
+                    },
                 )
             },
             floatingActionButton = {
@@ -156,6 +163,79 @@ fun FoodItemCell(foodItem: FoodItem? = null, onItemClick: () -> Unit) {
             }
 
         }
+    }
+}
+
+@OptIn(ExperimentalUnitApi::class)
+@Composable
+fun FilterMenu(expanded: MutableState<Boolean>, selectedFilter: MutableState<String>) {
+    DropdownMenu(
+        expanded = expanded.value,
+        onDismissRequest = { expanded.value = false }
+    ) {
+
+        DropdownMenuItem(onClick = {
+            expanded.value = false
+            selectedFilter.value = "A-Z"
+        }) {
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RadioButton(selected = selectedFilter.value == "A-Z", onClick = {
+                    expanded.value = false
+                    selectedFilter.value = "A-Z"
+                })
+                Text(
+                    "A-Z",
+                    textAlign = TextAlign.Center,
+                    fontSize = TextUnit(15f, TextUnitType.Sp),
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+        }
+
+        DropdownMenuItem(onClick = {
+            expanded.value = false
+            selectedFilter.value = "Z-A"
+        }) {
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RadioButton(selected = selectedFilter.value == "Z-A", onClick = {
+                    expanded.value = false
+                    selectedFilter.value = "Z-A"
+                })
+                Text(
+                    "Z-A",
+                    textAlign = TextAlign.Center,
+                    fontSize = TextUnit(15f, TextUnitType.Sp),
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+        }
+
+        Divider()
+
+        DropdownMenuItem(onClick = {
+            expanded.value = false
+            selectedFilter.value = "A-Z"
+        }) {
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text="Reset",
+                    textAlign = TextAlign.Center,
+                    fontSize = TextUnit(15f, TextUnitType.Sp),
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+        }
+
     }
 }
 

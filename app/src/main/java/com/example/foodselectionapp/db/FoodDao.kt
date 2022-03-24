@@ -9,8 +9,10 @@ import com.example.foodselectionapp.model.FoodItem
 
 @Dao
 interface FoodDao {
-    @Query("Select * from FoodItem")
-    suspend fun getFoodList(): List<FoodItem>?
+    @Query("Select * from FoodItem order by " +
+            "case when :wantAscending =1  then foodName  END ASC" +
+            ", case when :wantAscending =0  then foodName END DESC")
+    suspend fun getFoodList(wantAscending:Boolean=true): List<FoodItem>?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addFood(foodItem: FoodItem): Long
@@ -19,5 +21,6 @@ interface FoodDao {
     suspend fun checkIfDataAdded(foodId: String): FoodItem?
 
     @Delete
-    suspend fun deleteFood(foodItem: FoodItem): Long
+    suspend fun deleteFood(foodItem: FoodItem)
+
 }
