@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -29,19 +30,25 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.foodselectionapp.R
 import com.example.foodselectionapp.model.FoodItem
+import com.example.foodselectionapp.model.StatusTypes
 import com.example.foodselectionapp.ui.Screens
 import com.example.foodselectionapp.ui.theme.FoodSelectionAppTheme
 import com.example.foodselectionapp.ui.theme.getHeaderTextcolor
 
-@OptIn(ExperimentalUnitApi::class)
+@OptIn(ExperimentalUnitApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun ShowFoodListing(context: Context, navController: NavHostController? = null) {
+    val swipeableState = rememberSwipeableState(0)
+    val squareSize = 100.dp
+    val sizePx = with(LocalDensity.current) { squareSize.toPx() }
+    val anchors = mapOf(0f to 0, sizePx to 1)
+
     val listState = rememberLazyListState()
     val expanded = remember { mutableStateOf(false) }
     val selectedFilter = remember { mutableStateOf("A-Z") }
     val foodListingViewmodel = viewModel<FoodListingViewmodel>()
-    val foodList = foodListingViewmodel._foodListing.collectAsState().value
-    foodListingViewmodel.getFoodListing(context, FoodListingRepo(), selectedFilter.value=="A-Z")
+    val foodResponse = foodListingViewmodel._foodListing.collectAsState().value
+    foodListingViewmodel.getFoodListing(context, FoodListingRepo(), selectedFilter.value == "A-Z")
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colors.background
@@ -88,80 +95,110 @@ fun ShowFoodListing(context: Context, navController: NavHostController? = null) 
                 }
             }, floatingActionButtonPosition = FabPosition.End
         ) {
-            LazyColumn(
-                state = listState,
-                content = {
-                    for (i in foodList) {
-                        item {
-                            FoodItemCell(i) {
-                                //navController?.navigate("foodDetails")
-                                Screens.FoodDetailScreen.navigate(
-                                    navController = navController!!,
-                                    foodItem = i
-                                )
-                                /* foodItemDetails=i
-                                 navController?.navigate("foodDetails")*/
-                            }
-                        }
+            when(foodResponse.status){
+                StatusTypes.Loading->{
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                    ){
+                        CircularProgressIndicator()
                     }
-                },
-                modifier = Modifier.padding(top = 10.dp)
-            )
+                }
+                StatusTypes.Success->{
+                    LazyColumn(
+                        state = listState,
+                        content = {
+                            for (i in foodResponse.data!!) {
+                                item {
+                                    FoodItemCell(i) {
+                                        Screens.FoodDetailScreen.navigate(
+                                            navController = navController!!,
+                                            foodItem = i
+                                        )
+                                        /* foodItemDetails=i
+                                         navController?.navigate("foodDetails")*/
+                                    }
+                                }
+                            }
+                        },
+                        modifier = Modifier.fillMaxSize().padding(top = 10.dp)
+                    )
+                }
+                StatusTypes.Error->{
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = "No Data Found.!")
+                    }
+                }
+
+            }
         }
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun FoodItemCell(foodItem: FoodItem? = null, onItemClick: () -> Unit) {
-    Row(
-        Modifier
-            .padding(bottom = 5.dp, start = 10.dp, end = 10.dp)
-            .clickable {
-                onItemClick()
-            }) {
-        AsyncImage(
-            model = "https://via.placeholder.com/300/09f.png/fff",
-            contentDescription = "description of the image",
-            modifier = Modifier
-                .size(50.dp)
-                .clip(CircleShape)
-        )
-        Column(Modifier.padding(start = 5.dp)) {
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                text = foodItem?.foodName ?: "Test Name",
-                color = getHeaderTextcolor(),
-                fontWeight = FontWeight.SemiBold,
+fun FoodItemCell(
+    foodItem: FoodItem? = null,
+    onItemClick: () -> Unit
+) {
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .padding(bottom = 5.dp, start = 10.dp, end = 10.dp)
+        .clickable {
+            onItemClick()
+        }
+    ) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+        ) {
+            AsyncImage(
+                model = "https://via.placeholder.com/300/09f.png/fff",
+                contentDescription = "description of the image",
+                modifier = Modifier
+                    .size(50.dp)
+                    .clip(CircleShape)
             )
-            Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
+            Column(Modifier.padding(start = 5.dp)) {
                 Text(
-                    text = foodItem?.foodBrand ?: "Brand ",
-                    color = MaterialTheme.colors.primary,
+                    modifier = Modifier.fillMaxWidth(),
+                    text = foodItem?.foodName ?: "Test Name",
+                    color = getHeaderTextcolor(),
                     fontWeight = FontWeight.SemiBold,
-                    maxLines = 1,
-                    softWrap = true,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .width(170.dp)
-                        .padding(end = 10.dp)
                 )
-                Text(
-                    "Rs ${foodItem?.foodPrice?.toString() ?: "10"}",
-                    color = MaterialTheme.colors.primary,
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = 1,
-                    softWrap = true,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .width(170.dp),
-                    textAlign = TextAlign.End
-                )
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Text(
+                        text = foodItem?.foodBrand ?: "Brand ",
+                        color = MaterialTheme.colors.primary,
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1,
+                        softWrap = true,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .width(170.dp)
+                            .padding(end = 10.dp)
+                    )
+                    Text(
+                        "Rs ${foodItem?.foodPrice?.toString() ?: "10"}",
+                        color = MaterialTheme.colors.primary,
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1,
+                        softWrap = true,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .width(170.dp),
+                        textAlign = TextAlign.End
+                    )
+
+                }
 
             }
-
         }
     }
 }
@@ -228,7 +265,7 @@ fun FilterMenu(expanded: MutableState<Boolean>, selectedFilter: MutableState<Str
             ) {
                 Text(
                     modifier = Modifier.fillMaxWidth(),
-                    text="Reset",
+                    text = "Reset",
                     textAlign = TextAlign.Center,
                     fontSize = TextUnit(15f, TextUnitType.Sp),
                     fontWeight = FontWeight.SemiBold
@@ -245,8 +282,8 @@ fun FilterMenu(expanded: MutableState<Boolean>, selectedFilter: MutableState<Str
 fun DefaultPreview() {
     FoodSelectionAppTheme {
         //ShowFoodListing(LocalContext.current)
-        FoodItemCell {
+        /*   FoodItemCell {
 
-        }
+           }*/
     }
 }
