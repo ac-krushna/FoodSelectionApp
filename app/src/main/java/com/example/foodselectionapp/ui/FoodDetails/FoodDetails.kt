@@ -27,7 +27,7 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.foodselectionapp.R
 import com.example.foodselectionapp.model.FoodItem
-import com.example.foodselectionapp.ui.FoodListing.foodItemDetails
+import com.example.foodselectionapp.ui.Screens
 import com.example.foodselectionapp.ui.theme.FoodSelectionAppTheme
 import com.example.foodselectionapp.ui.theme.getHeaderTextcolor
 import com.example.foodselectionapp.ui.theme.getSubHeaderTextcolor
@@ -68,7 +68,7 @@ fun FoodDetails(
                                 contentScale = ContentScale.Crop
                             )
                             Text(
-                                text = foodItemDetails?.foodName?:"",
+                                text = foodItemDetails?.foodName ?: "",
                                 fontSize = TextUnit(25f, TextUnitType.Sp),
                                 fontWeight = FontWeight.SemiBold,
                                 color = getHeaderTextcolor()
@@ -76,27 +76,34 @@ fun FoodDetails(
                         }
                         item {
                             Text(
-                                text = "Brand: ${foodItemDetails?.foodBrand} Price : ${foodItemDetails?.foodPrice}" ,
+                                text = "Brand: ${foodItemDetails?.foodBrand} Price : ${foodItemDetails?.foodPrice}",
                                 fontWeight = FontWeight.SemiBold,
                                 fontSize = TextUnit(14f, TextUnitType.Sp),
-                                color=getSubHeaderTextcolor(),
-                                modifier = Modifier.fillMaxWidth().padding(top=20.dp, start = 8.dp, end = 8.dp),
+                                color = getSubHeaderTextcolor(),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 20.dp, start = 8.dp, end = 8.dp),
 
-                            )
+                                )
                         }
                     }
                 )
 
-                Box(Modifier.clip(CircleShape).clickable{
-                   navController?.popBackStack("foodListing",false)
-                }) {
-                    Image(painter = painterResource(id = R.drawable.ic_baseline_arrow_back_24),
+                Box(
+                    Modifier
+                        .clip(CircleShape)
+                        .clickable {
+                            Screens.FoodListingScreen.popBack(navController = navController!!)
+                        }) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_baseline_arrow_back_24),
                         contentDescription = "",
                         Modifier
                             .padding(8.dp)
                             .width(50.dp)
                             .height(50.dp)
-                            .padding(12.dp).clip(CircleShape),
+                            .padding(12.dp)
+                            .clip(CircleShape),
                         colorFilter = ColorFilter.tint(MaterialTheme.colors.onSurface),
                     )
                 }
@@ -117,6 +124,6 @@ fun FoodDetails(
 @Composable
 fun DefaultPreview() {
     FoodSelectionAppTheme {
-        FoodDetails(LocalContext.current, foodItemDetails = foodItemDetails)
+        FoodDetails(LocalContext.current, foodItemDetails = FoodItem("","","",""))
     }
 }

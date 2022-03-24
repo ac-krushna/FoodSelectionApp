@@ -25,7 +25,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java, "foodSelectionApp"
                 )
                     .build()
-                return  INSTANCE!!
+                return INSTANCE!!
             }
         }
     }

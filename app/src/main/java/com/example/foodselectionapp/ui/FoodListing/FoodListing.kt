@@ -15,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -26,15 +25,14 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.ActivityNavigatorExtras
 import androidx.navigation.NavHostController
-import androidx.navigation.Navigator
 import coil.compose.AsyncImage
 import com.example.foodselectionapp.R
 import com.example.foodselectionapp.model.FoodItem
+import com.example.foodselectionapp.ui.Screens
 import com.example.foodselectionapp.ui.theme.FoodSelectionAppTheme
 import com.example.foodselectionapp.ui.theme.getHeaderTextcolor
-var foodItemDetails:FoodItem?=null
+
 @OptIn(ExperimentalUnitApi::class)
 @Composable
 fun ShowFoodListing(context: Context, navController: NavHostController? = null) {
@@ -69,7 +67,7 @@ fun ShowFoodListing(context: Context, navController: NavHostController? = null) 
             floatingActionButton = {
                 FloatingActionButton(
                     onClick = {
-                        navController?.navigate("saveFoodDetails")
+                        Screens.CreateFoodScreen.navigate(navController!!)
                     },
                     backgroundColor = MaterialTheme.colors.primary
                 ) {
@@ -90,8 +88,12 @@ fun ShowFoodListing(context: Context, navController: NavHostController? = null) 
                         item {
                             FoodItemCell(i) {
                                 //navController?.navigate("foodDetails")
-                                foodItemDetails=i
-                                navController?.navigate("foodDetails",null)
+                                Screens.FoodDetailScreen.navigate(
+                                    navController = navController!!,
+                                    foodItem = i
+                                )
+                                /* foodItemDetails=i
+                                 navController?.navigate("foodDetails")*/
                             }
                         }
                     }
@@ -163,7 +165,7 @@ fun FoodItemCell(foodItem: FoodItem? = null, onItemClick: () -> Unit) {
 fun DefaultPreview() {
     FoodSelectionAppTheme {
         //ShowFoodListing(LocalContext.current)
-        FoodItemCell{
+        FoodItemCell {
 
         }
     }

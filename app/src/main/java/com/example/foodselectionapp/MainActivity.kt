@@ -10,10 +10,11 @@ import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.foodselectionapp.model.FoodItem
 import com.example.foodselectionapp.ui.FoodDetails.FoodDetails
 import com.example.foodselectionapp.ui.FoodListing.ShowFoodListing
-import com.example.foodselectionapp.ui.FoodListing.foodItemDetails
 import com.example.foodselectionapp.ui.SaveFoodData.SaveFoodFlow
+import com.example.foodselectionapp.ui.Screens
 import com.example.foodselectionapp.ui.theme.FoodSelectionAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -31,11 +32,33 @@ class MainActivity : ComponentActivity() {
 fun StartingAppView() {
     FoodSelectionAppTheme {
         val navController = rememberNavController()
-        NavHost(navController = navController, startDestination = "foodListing") {
-            composable("foodListing") { ShowFoodListing(LocalContext.current, navController) }
-            composable("foodDetails") { FoodDetails(LocalContext.current, navController,
-                foodItemDetails) }
-            composable("saveFoodDetails") { SaveFoodFlow(LocalContext.current, navController) }
+        NavHost(navController = navController, startDestination = Screens.FoodListingScreen.route) {
+            composable(Screens.FoodListingScreen.route) {
+                ShowFoodListing(
+                    LocalContext.current,
+                    navController
+                )
+            }
+            composable(
+                Screens.FoodDetailScreen.route,
+                arguments = Screens.FoodDetailScreen.wrapArguments()
+            ) {
+                FoodDetails(
+                    LocalContext.current, navController,
+                    FoodItem(
+                        foodId = Screens.FoodDetailScreen.giveFoodId(it.arguments),
+                        foodName = Screens.FoodDetailScreen.giveFoodName(it.arguments),
+                        foodBrand = Screens.FoodDetailScreen.giveFoodBrand(it.arguments),
+                        foodPrice = Screens.FoodDetailScreen.giveFoodPrice(it.arguments),
+                    )
+                )
+            }
+            composable(Screens.CreateFoodScreen.route) {
+                SaveFoodFlow(
+                    LocalContext.current,
+                    navController
+                )
+            }
         }
     }
 }

@@ -33,6 +33,7 @@ import androidx.navigation.NavHostController
 import com.example.foodselectionapp.R
 import com.example.foodselectionapp.model.FoodItem
 import com.example.foodselectionapp.ui.FoodListing.FoodListingViewmodel
+import com.example.foodselectionapp.ui.Screens
 import com.example.foodselectionapp.ui.theme.FoodSelectionAppTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -88,7 +89,7 @@ fun SaveFoodFlow(context: Context, navController: NavHostController? = null) {
                         Modifier
                             .clip(CircleShape)
                             .clickable {
-                                navController?.popBackStack("foodListing", false)
+                                Screens.FoodListingScreen.popBack(navController = navController!!)
                             }) {
                         Image(
                             painter = painterResource(id = R.drawable.ic_baseline_arrow_back_24),
@@ -133,7 +134,7 @@ fun SaveFoodFlow(context: Context, navController: NavHostController? = null) {
                         Log.d("SaveFoodFlow", "SaveFoodFlow: response " + response)
                         CoroutineScope(Dispatchers.Main).launch {
                             if (response > 1L) {
-                                navController?.popBackStack("foodListing", false)
+                                Screens.FoodListingScreen.popBack(navController = navController!!)
                             }
                         }
                     }
