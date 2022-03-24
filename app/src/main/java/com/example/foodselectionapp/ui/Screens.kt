@@ -1,6 +1,7 @@
 package com.example.foodselectionapp.ui
 
 import android.os.Bundle
+import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType

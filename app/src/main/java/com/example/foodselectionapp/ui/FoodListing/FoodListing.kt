@@ -15,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -35,110 +34,102 @@ import com.example.foodselectionapp.ui.Screens
 import com.example.foodselectionapp.ui.theme.FoodSelectionAppTheme
 import com.example.foodselectionapp.ui.theme.getHeaderTextcolor
 
-@OptIn(ExperimentalUnitApi::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalUnitApi::class)
 @Composable
 fun ShowFoodListing(context: Context, navController: NavHostController? = null) {
-    val swipeableState = rememberSwipeableState(0)
-    val squareSize = 100.dp
-    val sizePx = with(LocalDensity.current) { squareSize.toPx() }
-    val anchors = mapOf(0f to 0, sizePx to 1)
-
     val listState = rememberLazyListState()
     val expanded = remember { mutableStateOf(false) }
     val selectedFilter = remember { mutableStateOf("A-Z") }
     val foodListingViewmodel = viewModel<FoodListingViewmodel>()
     val foodResponse = foodListingViewmodel._foodListing.collectAsState().value
     foodListingViewmodel.getFoodListing(context, FoodListingRepo(), selectedFilter.value == "A-Z")
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colors.background
-    ) {
-        Scaffold(
-            Modifier
-                .fillMaxSize(),
-            topBar = {
-                TopAppBar(
-                    title = {
-                        Text(
-                            text = "Available Foods",
-                            textAlign = TextAlign.Center,
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = TextUnit(18f, TextUnitType.Sp),
-                            modifier = Modifier.padding(top = 10.dp, bottom = 10.dp)
-                        )
-                    },
-                    actions = {
-                        Image(painter = painterResource(id = R.drawable.ic_baseline_filter_alt_24),
-                            contentDescription = "",
-                            colorFilter = ColorFilter.tint(MaterialTheme.colors.onSurface),
-                            modifier = Modifier.clickable {
-                                expanded.value = !expanded.value
-                            })
-                        FilterMenu(expanded, selectedFilter)
-                    },
-                )
-            },
-            floatingActionButton = {
-                FloatingActionButton(
-                    onClick = {
-                        Screens.CreateFoodScreen.navigate(navController!!)
-                    },
-                    backgroundColor = MaterialTheme.colors.primary
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_baseline_add_24),
-                        contentDescription = "",
-                        colorFilter = ColorFilter.tint(
-                            Color.White
-                        )
+    Scaffold(
+        Modifier
+            .fillMaxSize(),
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "Available Foods",
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = TextUnit(18f, TextUnitType.Sp),
+                        modifier = Modifier.padding(top = 10.dp, bottom = 10.dp)
                     )
-                }
-            }, floatingActionButtonPosition = FabPosition.End
-        ) {
-            when(foodResponse.status){
-                StatusTypes.Loading->{
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
+                },
+                actions = {
+                    Image(painter = painterResource(id = R.drawable.ic_baseline_filter_alt_24),
+                        contentDescription = "",
+                        colorFilter = ColorFilter.tint(MaterialTheme.colors.onSurface),
+                        modifier = Modifier.clickable {
+                            expanded.value = !expanded.value
+                        })
+                    FilterMenu(expanded, selectedFilter)
+                },
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    Screens.CreateFoodScreen.navigate(navController!!)
+                },
+                backgroundColor = MaterialTheme.colors.primary
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_baseline_add_24),
+                    contentDescription = "",
+                    colorFilter = ColorFilter.tint(
+                        Color.White
+                    )
+                )
+            }
+        },
+        floatingActionButtonPosition = FabPosition.End
+    )  {
+        when (foodResponse.status) {
+            StatusTypes.Loading -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
-                    ){
-                        CircularProgressIndicator()
-                    }
+                ) {
+                    CircularProgressIndicator()
                 }
-                StatusTypes.Success->{
-                    LazyColumn(
-                        state = listState,
-                        content = {
-                            for (i in foodResponse.data!!) {
-                                item {
-                                    FoodItemCell(i) {
-                                        Screens.FoodDetailScreen.navigate(
-                                            navController = navController!!,
-                                            foodItem = i
-                                        )
-                                        /* foodItemDetails=i
-                                         navController?.navigate("foodDetails")*/
-                                    }
+            }
+            StatusTypes.Success -> {
+                LazyColumn(
+                    state = listState,
+                    content = {
+                        for (i in foodResponse.data!!) {
+                            item {
+                                FoodItemCell(i) {
+                                    Screens.FoodDetailScreen.navigate(
+                                        navController = navController!!,
+                                        foodItem = i
+                                    )
+                                    /* foodItemDetails=i
+                                     navController?.navigate("foodDetails")*/
                                 }
                             }
-                        },
-                        modifier = Modifier.fillMaxSize().padding(top = 10.dp)
-                    )
-                }
-                StatusTypes.Error->{
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(text = "No Data Found.!")
-                    }
-                }
-                StatusTypes.Nothing->{}
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = 10.dp)
+                )
             }
+            StatusTypes.Error -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = "No Data Found.!")
+                }
+            }
+            StatusTypes.Nothing -> {}
         }
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun FoodItemCell(
     foodItem: FoodItem? = null,
